@@ -1,0 +1,5 @@
+num	eqns	unknowns	switch	nsol	call	prefix	description
+24					capture.output(print(actual[[16]]))	options(width=100);	complex solution multi-column
+25					capture.output(print(actual[[16]]))	options(width=70) ;	complex solution single column
+26					capture.output(print(actual[[17]]))	options(width=100);	expression solution single column, no wrap
+27					capture.output(print(actual[[17]]))	options(width=70) ;	expression solution single column, wrap

@@ -1,0 +1,7 @@
+ 2                  2
+a  + 2*a*b + 2*a + b  + 2*b + 1
+latex:\black$\displaystyle \begin{equation}$
+latex:\black$\displaystyle  a^2+2\*a\*b+2\*a+b^2+2\*b+1$
+latex:\black$\displaystyle \end{equation}$
+latex:\black$\displaystyle  \mathrm{xf~:=~}a^2+2\*a\*b+2\*a+b^2+2\*b+1$
+latex:\black$\displaystyle  \mathrm{\$xf~:=~}a^2+2\*a\*b+2\*a+b^2+2\*b+1\mathrm{\$}$

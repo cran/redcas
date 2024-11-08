@@ -1,0 +1,7 @@
+       2            2
+xe := a  + 2*a*b + b
+latex:\black$\displaystyle \begin{equation}$
+latex:\black$\displaystyle  \mathrm{xe~:=~}a^2+2\*a\*b+b^2$
+latex:\black$\displaystyle \end{equation}$
+latex:\black$\displaystyle  \mathrm{xe~:=~}a^2+2\*a\*b+b^2$
+latex:\black$\displaystyle  \mathrm{\$xe~:=~}a^2+2\*a\*b+b^2\mathrm{\$}$

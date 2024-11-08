@@ -1,0 +1,35 @@
+Input file not found: redOut.fnf.not.there
+Could not insert its contents into the command vector.
+
+REDUCE session log:
+
+Reduce (CSL, rev XXXX), dd-Mon-yyyy ...
+
+1: 
+2: 
+lisp_dialect
+
+swget
+
+swtoggle
+
+asltx
+
+exprltx
+
+itoa
+
+array2flatls
+
+arrayltx
+
+asltx_marker
+
+3: 
+=====> submit number 0 done <=====
+
+4: 
+
+
+The session will now be terminated.
+

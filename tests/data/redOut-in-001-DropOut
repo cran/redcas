@@ -1,0 +1,16 @@
+4: %% Test with echo off
+4: off echo ;
+5: 
+      2            2
+a := x  + 2*x*y + y
+
+6: 
+ax := 2*(x + y)
+
+7: 
+ay := 2*(x + y)
+
+8: 
+=====> submit number 1 done <=====
+
+9: 9: 9: 

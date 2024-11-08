@@ -1,0 +1,65 @@
+Reduce (CSL, rev 6860), 11-Aug-2024 ...
+
+1: 1: 1: 1: 1: 1: 
+lisp_dialect
+
+swget
+
+swtoggle
+
+asltx
+
+exprltx
+
+itoa
+
+array2flatls
+
+arrayltx
+
+asltx_marker
+
+2: 
+t
+
+
+3: if swget(echo) then write "ECHO is ON" else write "ECHO is OFF" ;
+ECHO is ON
+
+
+4: %% Purpose: check  comments are treated as commands
+4: off exp ;
+
+5: q := (x + y)^2 + 1/(x+y)^2 ;
+             4
+      (x + y)  + 1
+q := --------------
+               2
+        (x + y)
+
+
+6:      % a comment with white space
+6: df(q, x) ;
+           4
+ 2*((x + y)  - 1)
+------------------
+            3
+     (x + y)
+
+ % a comment after command
+7: %% comment with semi-colon at end ;
+7: qq := q^2 ;
+               4     2
+       ((x + y)  + 1)
+qq := -----------------
+                 4
+          (x + y)
+
+
+8: 
+8: 
+
+
+
+
+*** End-of-file read 

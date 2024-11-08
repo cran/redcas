@@ -1,0 +1,392 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[LGR,T1]{fontenc}
+\usepackage[greek,english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[unicode,pdftex,bookmarks,colorlinks,linkcolor=blue]{hyperref}
+\usepackage{verbatim}
+\usepackage[margin=2cm]{geometry}
+%\usepackage{wrapfig,graphicx}
+%\usepackage{mathtools} % loads amsmath
+%\usepackage{amssymb}
+\pagestyle{plain}
+\author{Martin Gregory}
+\title{REDUCE functions provided by redcas}
+\begin{document}
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+\label{sec:intro}
+The {\it redcas} package provides a number of REDUCE procedures which are required for the
+package to function. While knowledge of these procedures is not needed to use {\it
+  redcas}, they may be of interest for use in REDUCE itself. There
+are three types of procedures. The first type produce outputs in a format which can be
+used by {\it redcas}. The second type are utility procedures needed by the first
+type. Finally there are declarations of symbolic procedures for use in algebraic mode
+using the{ \tt symbolic operator} statement. This third type are also utilites used by the
+first type.
+
+\section{Extracting the REDUCE code}
+All procedures are included
+in the file {\it redcas.red} in the {\it reduce} directory of the installed package. If
+you are using PSL, {\it redcas.red} calls {\it tmprint-psl.red}, also located in the
+same directory. You can extract the code to a location of your choice using the following code:
+\begin{verbatim}
+  library(redcas)
+  file.copy(paste0(redCodeDir(),"/",c("redcas.red","tmprint-psl.red"), "mydir")
+\end{verbatim}
+where {\it mydir} is a writable directory of your choice. In order that {\it redcas.red}
+can find {\it tmprint-psl.red}, you need to define the environment variable {\it
+  TMPRINT\_PSL\_PATH} to point to {\it tmprint-psl.red} file before starting REDUCE. 
+
+\section{Output procedures}
+\label{sec:output-procs}
+
+\subsection{asltx: calls arrayltx or exprltx depending on the object type}
+\label{sec:asltx}
+{\it asltx} is a convenience function which calls {\it arrayltx}~\ref{sec:arrayltx} for
+arrays, {\it exprltx}~\ref{sec:exprltx} for expressions and returns an error for any other
+type.
+
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  arrayltx(x, math, mode, name) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [x] identifier of an object to be typeset.
+\item [math] string naming a \LaTeX{} math environment in which to enclose each array
+  element. If empty no math environment is written.
+\item [mode] string naming the print mode: nat|fancy. {\it nat} is the standard REDUCE
+  output while {\it fancy} produces \LaTeX{} output using the REDUCE package TMPRINT. If not
+  specified, defaults to nat.
+\item [name] string providing the name to use when printing expressions.
+\end{description}
+
+\item [Details] Since REDUCE procedures do not support named arguments\footnote{lists can
+be used}, all arguments must be specified.
+\item [Value] None. Called for side effect of producing the output in the desired format.
+\end{description}
+
+\subsection{arrayltx: converts the flattened list to \LaTeX}
+\label{sec:arrayltx}
+{\it arrayltx} accepts an array of arbitrary dimensions and displays each element using
+the specified mode.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  arrayltx (arrx, math, mode) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [x] identifier of an array.
+\item [math] string naming a \LaTeX{} math environment in which to enclose each array
+  element. If empty no math environment is written.
+\item [mode] string naming the print mode: nat|fancy. {\it nat} is the standard REDUCE
+  output while {\it fancy} produces \LaTeX[{} output using the REDUCE package TMPRINT. If
+    not specified, defaults to nat.
+\end{description}
+
+\item [Details] Since REDUCE procedures do not support named arguments, all arguments must
+  be specified.
+
+\item [Value] None. Called for side effect of producing the output in the desired format.
+\end{description}
+
+
+\subsection{exprltx: converts an expression to \LaTeX}
+\label{sec:exprltx}
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [x] 
+\item [math] string naming a LaTeX math environment in which to enclose each array
+  element. If empty no math environment is written.
+\item [mode] string naming the print mode: nat|fancy. {\it nat} is the standard REDUCE
+  output while {\it fancy} produces \LaTeX output using the REDUCE package TMPRINT. If not
+  specified, defaults to nat.
+\end{description}
+
+\item [Details] Since REDUCE procedures do not support named arguments, all arguments must
+  be specified.
+
+\item [Value] None. Called for side effect of producing the output in the desired format.
+\end{description}
+
+\section{Utility procedures}
+\label{sec:util-procs}
+
+\subsection{array2flatls: converts an array to a flattened list}
+\label{sec:array2flatls}
+{\it array2flatls} converts an array to a flattened list using the procedure {\it
+  array\_to\_list} from the REDUCE package ASSIST and a for loop using the {\it join}
+action.  This is called by {\it arrayltx} to allow handling arrays with an arbitrary
+number of dimensions.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  array2flatls(arrx) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [arrx] identifier of array to convert
+\end{description}
+
+\item [Value] A list containing the elements of the array. The order of the list is
+  {\color{red} unknown to me at the moment}. 
+\end{description}
+
+
+\subsection{asltx\_marker: mark output for extraction}
+\label{sec:asltx_marker}
+{\it asltx\_marker} calls {\it asltx} and encloses the output between a line {\tt
+  \#\#START label} and {\tt \#\#END label}, so that it can be easily extracted from a
+REDUCE log.
+
+\begin{enumerate}
+\item {\color{red}also export redSplitOut or just call it from redExtract?}
+\item {\color{red} do this in 1.0.1 or wait for next version?}  
+\item {\color{red} consider this for the markers:}
+\begin{verbatim}
+  ##< label
+  output
+  ##> label
+\end{verbatim}
+\end{enumerate}
+
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  asltx_marker (thing,  math, mode, name, label) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [x] identifier of an object to be typeset.
+\item [math] string naming a \LaTeX{} math environment in which to enclose each array
+  element. If empty no math environment is written.
+\item [mode] string naming the print mode: nat|fancy. {\it nat} is the standard REDUCE
+  output while {\it fancy} produces \LaTeX{} output using the REDUCE package TMPRINT. If not
+  specified, defaults to nat.
+\item [name] string providing the name to use when printing expressions.
+\item [label] an arbitrary string to identify the output.
+\end{description}
+
+\item [Details] This procedure allows extraction of specific outputs from the log of a
+  reduce program which has been run either independently of {\it redcas} or using  or {\it
+    redcas::redBatch}. While extraction can be done using any program, {\it
+    redcas::redExtract} provides a way to do this.
+
+\item [Value] None. Called for side effect of producing the output in the desired format
+  enclosed in the start and end markers.
+\end{description}
+
+\subsection{itoa: converts an integer to a string}
+\label{sec:itoa}
+{\it itoa} converts an integer to a string. Useful for formatting output.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  itoa(integer) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [integer] an arbitrary integer.
+\end{description}
+
+\item [Value] a string representation of the integer.
+\end{description}
+
+\subsection{lisp\_dialect}
+\label{sec:lisp_dialect}
+{\it lisp\_dialect} determines whether REDUCE is running under CSL or PSL 
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  lisp_dialect() ;
+\end{verbatim}
+
+\item [Arguments] None
+
+\item [Details] this function is intended for use in a condition, for example
+\begin{verbatim}
+  if lisp_dialect = 'csl then ... ;
+\end{verbatim}
+
+\item [Value] the quoted symbol {\tt 'csl} or {\tt 'psl}
+\end{description}
+
+\subsection{swget}
+\label{sec:swget}
+{\it swget} tests whether a REDUCE switch is on or off.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  swget(s) 
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [s] the identifier of the switch to test 
+\end{description}
+
+\item [Details] if the value of {\it swget} is {\it nil} it prints as blank. It should
+  only be used in a condition, for example,
+\begin{verbatim}
+   if swget(echo) then write "on" else write "off";
+\end{verbatim}
+\item [Value] Boolean.
+\end{description}
+
+\subsection{swtoggle}
+\label{sec:swtoggle}
+{\it swtoggle} toggles a REDUCE switch.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  swtoggle(s) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [s] the identifier of the switch to toggle 
+\end{description}
+
+\item [Value] the new state of the switch.
+\end{description}
+
+\section{Symbolic procedures}
+\label{sec:sym-procs}
+This section describes symbolic procedure which have been declared algebraic by using the
+{\tt symbolic operator} statement.
+\subsection{arrayp: array predicate}
+\label{sec:arrayp}
+{\it arrayp} is a predicate function to test whether an object is an array or not.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  array(x)  
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [x] an identifier to test
+\end{description}
+
+\item [Details]  if the value of {\it arrayp} is {\it nil} it prints as blank. It should
+  only be used in a condition, for example,
+\begin{verbatim}
+   if arrayp(x) then ... ;
+\end{verbatim}
+\item [Value] Boolean.
+\end{description}
+
+\subsection{concat: concatenate 2 strings}
+\label{sec:concat}
+{\it concat} concatenates two strings.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  result := concat(a, b) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [a] first string
+\item [b] second string
+\end{description}
+
+\item [Details]
+
+\item [Value] string containing the concatenation of the first and second strings.
+\end{description}
+
+\subsection{gettype: distinguishing arrays from "simple" expressions}
+\label{sec:gettype}
+{\it gettype} returns the type of an identifier.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  gettype(x)
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [x] the object for which type should be returned
+\end{description}
+
+\item [Details] {\it gettype} is used by {\it asltx} to determine whether to call {\it
+  arrayltx} or {\it exprltx}.
+
+\item [Value] the type of the object as a quoted identifier, for example, {\tt 'array}.
+\end{description}
+
+\subsection{id2string}
+\label{sec:id2string}
+{\it id2string} returns an identifier's name as a string
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  id_as_string := id2string(x) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [x] identifier whose name is to be returned as a string
+\end{description}
+\item [Value] string containing the name of the identifier.
+\end{description}
+
+\subsection{onoff: required by swtoggle}
+\label{sec:onoff}
+{\it onoff} is a symbolic function which sets a switch.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  onoff(s, bool) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [s] identifier of the switch.
+\item [bool] a boolean to set the switch on (t) or off (nil).
+\end{description}
+
+\item [Details] This is used by swtoggle.
+
+\item [Value] {\color{red} None, but check documentation - csl or psl manual?}
+\end{description}
+
+\subsection{tex\_string: render string as \LaTeX}
+\label{sec:tex_string}
+{\it tex\_string} prevents REDUCE replacing \textbackslash{} with
+\textbackslash{}textbackslash and \{\} with \textbackslash\{\textbackslash\} when the FANCY
+switch is on.
+\begin{description}
+\item [Syntax] 
+\begin{verbatim}
+  result := tex_string(s) ;
+\end{verbatim}
+
+\item [Arguments]
+\begin{description}
+\item [s] a string to render as \LaTeX
+\end{description}
+
+\item [Details] {\it redcas} uses {\it tex\_string} when writing the math environment to
+  ensure the string is not modified.
+
+\item [Value] the original string without the unwanted conversions.
+\end{description}
+
+\end{document}

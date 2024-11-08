@@ -1,0 +1,288 @@
+Reduce (CSL, rev 6657), 10-Dec-2023 ...
+
+1: 
+
+2: off exp;
+
+3: 
+3: % a programme to calculate the surface energy tensor or the Curzon field in
+3: % quasi-cylindrical coords. The surface is a cylinder x(0)=time, x(1)=azimuthal angle,
+3: % x(2)=radial, x(3)=axial.
+3: 
+3: operator q, x, y, z;
+
+4: for all i,j such that i neq j
+4:    let {df (x (i), x(j)) => 0,
+4:       df (y(i), y(j)) => 0,
+4:       df (q(i), q(j)) => 0};
+
+5: 
+5: array g(3,3), gp(3,3), gm(3,3), h(3,3), cs1(3,3,3), cs2(3,3,3),
+5:    n(3), twop(2,2), twom(2,2), two(2,2), gam(2,2), s(2,2);
+
+6: 
+6: % input exterior field and normal and compute 2nd fundamental forms;
+6: la:=-m/(x(2)^2 + x(3)^2)^(1/2) ;
+               - m
+la := ---------------------
+                2       2
+       sqrt(x(3)  + x(2) )
+
+
+7: nu:=-((m*x(2)/(x(2)^2 + x(3)^2))^2)/2;
+                 2  2
+           - x(2) *m
+nu := --------------------
+              2       2 2
+       2*(x(3)  + x(2) )
+
+
+8: gp(0,0):=-e^(2*la);
+                        -1
+gp(0,0) := ----------------------------
+                            2       2
+             (2*m)/sqrt(x(3)  + x(2) )
+            e
+
+
+9: gp(1,1):=-x(2)^2/gp(0,0);
+                           2       2
+            (2*m)/sqrt(x(3)  + x(2) )     2
+gp(1,1) := e                         *x(2)
+
+
+10: gp(3,3):=gp(2,2):=e^(2*(nu-la));
+                                        2       2
+                         (2*m)/sqrt(x(3)  + x(2) )
+                        e
+gp(3,3) := gp(2,2) := ------------------------------
+                             2  2       2       2 2
+                        (x(2) *m )/(x(3)  + x(2) )
+                       e
+
+
+11: for i:=0:3 do g(i,i):=gp(i,i) ;
+
+12: for i:=0:3 do let z(i)=x(i) ;
+
+13: 
+13: in "chris.red";off echo ;
+
+
+
+14: 
+14: for all i such that i neq 3 let x(i)=q(i) ;
+
+15: let x(3)=(a^2 - x(2)^2)^(1/2);
+
+16: for i:=2:3 do write n(i):=x(i)*e^(nu-la)/(x(2)^2 + x(3)^2)^(1/2);
+               m/abs(a)
+              e        *q(2)
+n(2) := ---------------------------
+               2  2      4
+          (q(2) *m )/(2*a )
+         e                 *abs(a)
+
+          m/abs(a)             2    2
+         e        *sqrt( - q(2)  + a )
+n(3) := -------------------------------
+                 2  2      4
+            (q(2) *m )/(2*a )
+           e                 *abs(a)
+
+
+17: 
+17: in "form.red";off echo ;
+
+
+
+18: %% CHECKED TO HERE
+18: for i:=0:2 do for j:=i:2 do write twop(j,i):=twop(i,j):=two(i,j);
+                                                   2  2   4
+                                              (q(2) *m )/a
+                                           - e             *m
+twop(0,0) := twop(0,0) := ---------------------------------------------------
+                                        2  2      4               4
+                            (abs(a)*q(2) *m  + 6*a *m)/(2*abs(a)*a )       2
+                           e                                        *abs(a)
+
+twop(1,0) := twop(0,1) := 0
+
+twop(2,0) := twop(0,2) := 0
+
+twop(1,1) := twop(1,1) := 
+
+              2  2    4             4
+  (abs(a)*q(2) *m  + a *m)/(abs(a)*a )                  2
+ e                                    *(abs(a) - m)*q(2)
+----------------------------------------------------------
+                      2  2      4
+                 (q(2) *m )/(2*a )       2
+                e                 *abs(a)
+
+twop(2,1) := twop(1,2) := 0
+
+                               m/abs(a)             2  2           4    4
+                            - e        *(abs(a)*q(2) *m  + abs(a)*a  - a *m)
+twop(2,2) := twop(2,2) := ---------------------------------------------------
+                                    2  2      4
+                               (q(2) *m )/(2*a )      2    2        2  2
+                              e                 *(q(2)  - a )*abs(a) *a
+
+
+19: 
+19: % now we repeat the procedure for the interior metric
+19: n0:=-((m*y(2)/a^2)^2)/2;
+              2  2
+        - y(2) *m
+n0 := -------------
+             4
+          2*a
+
+
+20: l0:=-m/a;
+        - m
+l0 := ------
+        a
+
+
+21: gm(0,0):=-e^(2*l0);
+               -1
+gm(0,0) := ----------
+             (2*m)/a
+            e
+
+
+22: gm(1,1):=-y(2)^2/gm(0,0);
+            (2*m)/a     2
+gm(1,1) := e       *y(2)
+
+
+23: gm(2,2):=gm(3,3):=-1/gm(0,0);
+                       (2*m)/a
+gm(2,2) := gm(3,3) := e
+
+
+24: for i:=0:3 do g(i,i):=gm(i,i);
+
+25: for i:=0:3 do let z(i)=y(i) ;
+
+26: in "chrisx.red";
++++ Error file could not be opened: "chrisx.red"
+
+
+27: for all i such that i neq 3 let y(i)=q(i);
+
+28: for all i such that i neq 2 let df(y(3),q(i))=0;
+
+29: f:=(e^(2*n0)/(1 - q(2)^2/a^2)-1)^(1/2);
+                    2  2   4
+               (q(2) *m )/a       2    2     2
+            - e             *(q(2)  - a ) - a
+f := sqrt(-------------------------------------)
+                     2  2   4
+                (q(2) *m )/a       2    2
+               e             *(q(2)  - a )
+
+
+30: df(y(3),q(2)):=f;
+                                2  2   4
+                           (q(2) *m )/a       2    2     2
+                        - e             *(q(2)  - a ) - a
+df(y(3),q(2)) := sqrt(-------------------------------------)
+                                 2  2   4
+                            (q(2) *m )/a       2    2
+                           e             *(q(2)  - a )
+
+
+31: n(3):=x(3)*e^(-(l0+n0))/a;
+               2  2      3        4
+          (q(2) *m  + 2*a *m)/(2*a )             2    2
+         e                          *sqrt( - q(2)  + a )
+n(3) := -------------------------------------------------
+                                a
+
+
+32: n(2):=-n(3)*f;
+                  2  2      3        4
+             (q(2) *m  + 2*a *m)/(2*a )
+n(2) := ( - e
+
+                         2  2   4
+                    (q(2) *m )/a       2    2     2
+                 - e             *(q(2)  - a ) - a                2    2
+         *sqrt(-------------------------------------)*sqrt( - q(2)  + a ))/a
+                          2  2   4
+                     (q(2) *m )/a       2    2
+                    e             *(q(2)  - a )
+
+
+33: in "formx.red";
++++ Error file could not be opened: "formx.red"
+
+
+34: for i:=0:2 do for j:=i:2 do write twom(j,i):=twom(i,j):=two(i,j);
+                                                   2  2   4
+                                              (q(2) *m )/a
+                                           - e             *m
+twom(0,0) := twom(0,0) := ---------------------------------------------------
+                                        2  2      4               4
+                            (abs(a)*q(2) *m  + 6*a *m)/(2*abs(a)*a )       2
+                           e                                        *abs(a)
+
+twom(1,0) := twom(0,1) := 0
+
+twom(2,0) := twom(0,2) := 0
+
+twom(1,1) := twom(1,1) := 
+
+              2  2    4             4
+  (abs(a)*q(2) *m  + a *m)/(abs(a)*a )                  2
+ e                                    *(abs(a) - m)*q(2)
+----------------------------------------------------------
+                      2  2      4
+                 (q(2) *m )/(2*a )       2
+                e                 *abs(a)
+
+twom(2,1) := twom(1,2) := 0
+
+                               m/abs(a)       2  2    4            4
+                            - e        *((q(2) *m  + a )*abs(a) - a *m)
+twom(2,2) := twom(2,2) := ----------------------------------------------
+                                  2  2      4
+                             (q(2) *m )/(2*a )      2    2        2  2
+                            e                 *(q(2)  - a )*abs(a) *a
+
+
+35: 
+35: % now compute the surface energy tensor, s
+35: for p:=0:2 do
+35:    for l:=p:2 do
+35:       gam(l,p):=gam(p,l):=twop(p,l) - twom(p,l);
+
+36: for p:=0:2 do
+36:    for l:=p:2 do write
+36:       s(l,p):=s(p,l):=gam(p,l) - gp(p,l)*(for i:=0:2 sum gam(i,i)/gp(i,i));
+s(0,0) := s(0,0) := 0
+
+s(1,0) := s(0,1) := 0
+
+s(2,0) := s(0,2) := 0
+
+s(1,1) := s(1,1) := 0
+
+s(2,1) := s(1,2) := 0
+
+s(2,2) := s(2,2) := 0
+
+
+37: ;
+end ;
+
+39: 
+39: 
+
+
+
+
+*** End-of-file read 

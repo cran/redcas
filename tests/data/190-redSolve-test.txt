@@ -1,0 +1,24 @@
+num	eqns	unknowns	switch	nsol	call	prefix	description
+01	"x+y", "x-y=8"			NA	capture.output(		error: both eqns and unknowns are required. Stopping.
+02		"x"	"on rounded;"	NA	capture.output(		error: both eqns and unknowns are required. Stopping.
+03	1,2,3	"x"	"on rounded;"	NA	capture.output(		error: eqns is not character. Stopping.
+04	"x+3y=7", "y-x=1"	1,2		NA	capture.output(		error: unknowns is not character. Stopping.
+05	"x+3y=7", "y-x=1"	"x", "y"	55	NA	capture.output(		error: switch is not character. Stopping.
+06	"x+3y=7", "y-x=1"	"x", "y"	"on echo, nat, exp;"	NA	capture.output(		error: switch may not turn NAT on. Stopping.
+07	"x+3y=7", "y-x=1"	"x", "y"		1	capture.output(rsobj07 <-	redExec(r0,"on nat;");	check turning off NAT. rsobj07 to avoid result in capture
+08	"x+3y=7", "y-x=1"	"x", "y"		1		redExec(r0,"off nat;");	2 eqn, 2 unknown, order 1
+09	"x^7-x^6+x^2=1"	"x"		2			1 eqn, 1 unknown, order 7, root_of
+10	"x^2=2x-1"	"x"		1			1 eqn, 1 unknown, order 2, off multiplicities
+11	"x^2=2x-1"	"x"	"on multiplicities;"	2			1 eqn, 1 unknown, order 2, on multiplicities
+12	"x=2*z", "z=2*y"	"z"		0			1 eqn, 1 unknown, order 2, unknown redundant, no solution
+13	"x = a", "x = b", "y = c", "y = d"	"x", "y"		0			2 eqn, 2 unknown, order 1, no solution
+14	"x2 = a", "x2 = b", "y2 = c", "y2 = d"	"x", "y"		0			2 eqn, 2 unknown, order 1, no unknown, no solution
+15	"x+y+z = 0", "x^2 + y^2 + z^2 = 9", "x^2 + y^2 = z^2"	"x", "y", "z"	"on rounded;"	4			3 eqn, 3 unknown, order 2, on rounded, 4 solutions
+16	"x+y+z = 0", "x^2 + y^2 + z^2 = 9", "x^2 + y^2 = z"	"x", "y", "z"		4			3 eqn, 3 unknown, order 2, on rounded, 4 solutions
+17	"x+y+z = 0", "x^2 + y^2 + z^2 = 9", "x^2 + y^2 = z"	"x", "y", "z"	"off rounded;"	4			3 eqn, 3 unknown, order 2, off rounded, 4 solutions with NaN;
+18	"a*x^2 + 2*b*x + c"	"x"		2			1 eqn, 1 unknown, order 2, indeterminate coeff, 2 solutions
+19	"x + y = 8", "x - y = 0"	"x", "y"		1			2 eqn, 2 unknown, order 1, 1 solution
+20	"a*x + b*y=8", "x - y=0"	"x", "y"		1			2 eqn, 2 unknown, order 2, indeterminate coeff, 1 solution
+21	"a*x + b*y=8", "x - b*y=0"	"x", "y"		1			2 eqn, 2 unknown, order 2, indeterminate coeff, 1 solution
+22	"a*x^2 + b*xy + c"	"x", "y"		1			2 eqn, 2 unknown, order 2, degenerate, arbcomplex, 1 solution
+23	"x^7-x^6+x^2+y=1", "y+x=0"	"x", "y"	"off rounded;"	2			2 eqn, 2 unknown, o(2), off rounded - root_of, 2 solutions

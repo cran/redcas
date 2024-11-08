@@ -1,0 +1,3 @@
+latex:\black$\displaystyle \begin{dmath}$
+latex:\black$\displaystyle  \mathrm{yf~:=~}\frac{2}{a+b+1}$
+latex:\black$\displaystyle \end{dmath}$

@@ -1,0 +1,4 @@
+latex:\black$\displaystyle  \mathrm{g}\mathrm{(}\mathrm{0,0}\mathrm{)~:=~}\frac{-1}{u^2}$
+latex:\black$\displaystyle  \mathrm{g}\mathrm{(}\mathrm{1,1}\mathrm{)~:=~}a^2\*u^2$
+latex:\black$\displaystyle  \mathrm{g}\mathrm{(}\mathrm{2,2}\mathrm{)~:=~}\sin\left(x\left(1\right)\right)^2\*a^2\*u^2$
+latex:\black$\displaystyle  \mathrm{g}\mathrm{(}\mathrm{3,3}\mathrm{)~:=~}u^2$

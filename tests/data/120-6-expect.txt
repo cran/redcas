@@ -1,0 +1,2 @@
+latex:\black$\displaystyle  \mathrm{kplus}\mathrm{(}\mathrm{1,1}\mathrm{)~:=~}a\*u$
+latex:\black$\displaystyle  \mathrm{kplus}\mathrm{(}\mathrm{2,2}\mathrm{)~:=~}\sin\left(x\left(1\right)\right)^2\*a\*u$

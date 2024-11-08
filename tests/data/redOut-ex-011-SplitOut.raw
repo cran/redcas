@@ -1,0 +1,57 @@
+4: %% Test with echo off
+4: off echo ;
+5: 
+      2            2
+a := x  + 2*x*y + y
+
+6: 
+ax := 2*(x + y)
+
+7: 
+ay := 2*(x + y)
+
+8: 
+=====> submit number 1 done <=====
+
+9: 9: 9: 
+
+10: b:=(u+v)^3 ;
+      3      2          2    3
+b := u  + 3*u *v + 3*u*v  + v
+
+
+11: bu:=df(b,u) ;
+          2            2
+bu := 3*(u  + 2*u*v + v )
+
+
+12: bv:=df(b,v) ;
+          2            2
+bv := 3*(u  + 2*u*v + v )
+
+
+13: mark_end_block(2) ;
+=====> submit number 2 done <=====
+
+
+14: c:=(u+v)^4 ;
+      4      3        2  2        3    4
+c := u  + 4*u *v + 6*u *v  + 4*u*v  + v
+
+
+15: cu:=df(c,u) ;
+          3      2          2    3
+cu := 4*(u  + 3*u *v + 3*u*v  + v )
+
+
+16: cv:=df(c,v) ;
+          3      2          2    3
+cv := 4*(u  + 3*u *v + 3*u*v  + v )
+
+
+17: mark_end_block(3) ;
+=====> submit number 3 done <=====
+
+
+18: 
+

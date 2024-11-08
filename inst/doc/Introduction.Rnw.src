@@ -1,0 +1,787 @@
+\documentclass[a4paper,11pt]{article}
+\RequirePackage[margin=2cm]{geometry}
+%\RequirePackage[pdftex]{graphicx}
+\RequirePackage{mathtools} % loads amsmath
+\RequirePackage{amsfonts}
+\RequirePackage{breqn} % for d[group|math]
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[unicode,pdftex,bookmarks,colorlinks,linkcolor=blue]{hyperref}
+\RequirePackage{listings}
+\RequirePackage{framed}
+
+%% NOTE: Reduce is broken so we redefine it here
+%% \input{lstlisting-red.tex}
+%% \lstset{language=red,
+%%   basicstyle=\small,%\ttfamily,
+%%   keywordstyle=\color{myblue},
+%%   commentstyle=\color{myred},
+%%   stringstyle=\color{mygreen}
+%% }
+
+\usepackage{color}
+%% \definecolor{Red}{rgb}{0.6,0,0} % for strings
+\definecolor{DarkGreen}{rgb}{0.25,0.9,0.35} % comments
+%% \definecolor{myblue}{rgb}{0,0,1.0} % keywords
+
+
+\lstloadlanguages{R}
+\lstset{language=R,
+  basicstyle=\fontsize{9}{10}\selectfont\ttfamily,
+  stringstyle=\color{red},
+  otherkeywords={0,1,2,3,4,5,6,7,8,9},
+  morekeywords={TRUE,FALSE},
+  deletekeywords={data,frame,length,as,character},
+  keywordstyle=\color{blue},
+  commentstyle=\color{DarkGreen},
+  showstringspaces=false
+}
+\usepackage[indent]{parskip}
+
+%% Emacs abbreviations for lstlisting. Note that missing markers cause a problem
+%% lmrki	\begin{Sinput}-\end{Sinput}   %% input only
+%% lmrko	\begin{Soutput}-\end{Soutput} %% input and one output (more not possible)
+%% irmF 	includerangemarker=false
+\newcommand{\reduce}{REDUCE }
+
+\title{Introduction to the redcas package}
+\date{\today}
+\author{Martin Gregory}
+%\VignetteIndexEntry{Introduction}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\SweaveSyntax{SweaveSyntaxLatex}
+%% \DefineVerbatimEnvironment{Sinput}{Verbatim}{xleftmargin=2em,frame=single}
+%% \DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em,frame=single}
+%\setkeys{Gin}{width=\textwidth}
+
+%%
+%% Overview
+%%
+\section{Overview}
+{\it redcas} is an interface to \reduce, a portable general-purpose computer algebra
+system supporting scalar, vector, matrix and tensor algebra, symbolic differential and
+integral calculus, arbitrary precision numerical calculations and output in \LaTeX
+format. This document shows some basic examples of using {\it redcas}. The examples are
+trivial in order to concentrate on the use of the package but explanation of some aspects
+of \reduce are provided for those not familiar with it. \reduce is written in Lisp and can
+run on various Lisp dialects, the most common being CSL and PSL. {\it redcas} can use
+either of these two. We show how {\it redcas} finds the \reduce executables
+(section~\ref{sec:finding-reduce}), how to start a session, define and display expressions
+and close the session (section~\ref{sec:REDUCE-from-R}), control output
+(section~\ref{sec:control-output}), how to solve a system of equations
+(section~\ref{sec:solve}) and how to produce \LaTeX{} output
+(section~\ref{sec:latex-output}). We also describe some known issues
+(appendix~\ref{sec:known-issues}) and the tests supplied with the package
+(appendix~\ref{sec:testing}).
+
+
+%%
+%% Finding \reduce
+%%
+\section{Finding \reduce}
+\label{sec:finding-reduce}
+{\it redcas} can be installed even if \reduce is not installed, but to use it requires a
+\reduce installation. Details on installing can be found on the \reduce web
+site~\cite{reduce2024}. There are four different ways that {\it redcas} can find the
+\reduce executables ({\it redcsl, redpsl}). These are, in order of precedence:
+\begin{enumerate}
+\item explicitly specifying the path using the {\it dirpath} argument of {\it redStart};
+\item the environment variable {\it REDUCE\_EXEC} exists and contains the path to a
+  directory containing one or both executables;
+\item the R option {\it reduce\_exec} exists and contains the path to a directory
+  containing one or both executables;
+\item the executable is located in a directory listed in the {\it PATH} environment variable.
+\end{enumerate}
+
+%%
+%% Controlling a \reduce session from R
+%%
+\section{Controlling a \reduce session from R}
+\label{sec:REDUCE-from-R}
+A \reduce session is started using the {\it redStart} function. While the session is open,
+the {\it redExec}, {\it redSolve} or {\it asltx} functions can be used to send commands to
+the \reduce session and retrieve the output. This allows direct handling of the output
+from a given command or set of commands and easy separation of calculation and
+display. Finally, the {\it redClose} function shuts down the \reduce session and
+optionally retrieves the complete transcript. {\it redSolve} and {\it asltx} will be
+covered in sections~\ref{sec:solve} and \ref{sec:latex-output}, respectively.
+
+\subsection{Starting \reduce}
+\label{sec:starting-reduce}
+To start a \reduce session load the package and call {\it redStart}:
+\begin{lstlisting}[language=R, frame=single,
+    linerange={\\begin\{Sinput\}-\\end\{Sinput\}}, includerangemarker=false]
+\begin{Scode}{label=ex1.0,results=tex}
+library(redcas)
+s1 <- redStart(dialect="csl", echo=TRUE)
+\end{Scode}
+\end{lstlisting}
+This starts a CSL \reduce session. CSL is the default dialect and does not need to be
+specified. Sessions are started using a pipe which means they are interactive, i.e. the
+INT switch is on. The ECHO switch is off by default as this is the \reduce default. {\it
+  redStart} provides the {\it echo} argument to turn the switch on at the start of the
+session so that commands will appear in the \reduce transcript. {\it redStart} returns the
+identifier for the session if successful, otherwise it terminates with {\it stop}. The
+identifer is required by other {\it redcas} functions which communicate with the \reduce
+session.
+
+\subsection{Executing \reduce code}
+\label{sec:exec-reduce-code}
+To execute \reduce code we use the {\it redExec} function which takes as required
+arguments the identifier returned by {\it redStart} and a character vector containing
+\reduce commands. As an example consider a call with a single \reduce command:
+
+\begin{lstlisting}[language=R, frame=single,
+    linerange={\\begin\{Sinput\}-\\end\{Sinput\}}, includerangemarker=false]
+\begin{Scode}{label=ex1.1, echo=TRUE}
+o1 <- redExec(s1, "r2d2 := (987654321/15)^3;", drop.blank.lines=TRUE)
+\end{Scode}
+\end{lstlisting}
+If {\it redExec} fails it returns {\it FALSE}. Otherwise it returns a list with three
+character vector elements:
+\begin{description}
+\item [out] the output from the commands executed;
+\item [cmd] the commands as written to the \reduce transcript. This depends on the
+  state of the ECHO switch;
+\item [raw] the portion of the \reduce transcript produced by the call. This includes
+  interspersed commands and output.
+\end{description}
+We used the {\it drop.blank.lines} option to make the output more compact - the \reduce
+transcript uses blank lines generously. We can see the result by displaying the {\it out}
+element of {\it o1}:
+\begin{lstlisting}[language=R, frame=single,
+    linerange={\\begin\{Sinput\}-\\end\{Sinput\},\\begin\{Soutput\}-\\end\{Soutput\}},
+    includerangemarker=false]
+\begin{Scode}{label=ex1.1a}
+writeLines(o1[["out"]])
+\end{Scode}
+\end{lstlisting}
+As we can see, by default \reduce uses exact, indefinite precision arithmetic. To display
+as a float we need to turn on the ROUNDED switch:
+\begin{lstlisting}[language=R, frame=single,
+    linerange={\\begin\{Sinput\}-\\end\{Sinput\},\\begin\{Soutput\}-\\end\{Soutput\}},
+    includerangemarker=false]
+\begin{Scode}{label=ex1.2, echo=TRUE}
+cmd <- c("on rounded;",
+          "r2d2;",
+          "off rounded;")
+redExec(s1, cmd, drop.blank.lines=TRUE)[["out"]]
+\end{Scode}
+\end{lstlisting}
+
+\subsection{Closing \reduce}
+\label{sec:closing-reduce}
+The session is closed by calling the {\it redClose} function. The optional
+{\it log} argument saves the entire \reduce transcript to the specified location.
+\begin{lstlisting}[language=R, frame=single,
+    linerange={\\begin\{Sinput\}-\\end\{Sinput\},\\begin\{Soutput\}-\\end\{Soutput\}},
+    includerangemarker=false]
+\begin{Scode}
+  redClose(s1, log="controlling-reduce.clg")
+\end{Scode}
+\end{lstlisting}
+See Appendix~\ref{sec:reduce-transcript} for a discussion of the \reduce transcript for
+this section.
+
+%%
+%% Controlling output
+%%
+\section{Controlling output}
+\label{sec:control-output}
+In this section we consider some \reduce features which control how expressions are
+displayed or simplified. As an example consider the function $f(x,y)=(x+y)^2+1/(x+y)$
+which can be displayed in various ways. Some are:
+\begin{align*}
+  f(x,y) &= \frac{(x+y)^3+1}{(x+y)} \\
+  &=\frac{x^3+3x^2y+3xy^2+y^3+1}{(x+y)} \\
+  &=(x+y)^2+(x+y)^{-1} \\
+  &=(x^3+3x^2y+3xy^2+y^3+1)(x+y)^{-1}
+\end{align*}
+In addition to ROUNDED, the relevant \reduce switches are EXP, FACTOR\footnote{turning
+FACTOR on turns EXP off automatically without notification}, MCD, GCD, ALLFAC, RAT, DIV
+and LIST. Depending on what further processing will be done in R, we also need to consider
+that {\it redExec} returns all output from the commands submitted. So we may want to split
+execution of \reduce commands into appropriate separate calls to {\it redExec}.
+
+In this section we cover the EXP and MCD switches. For details of the others, see the
+Switch Summary~\cite{switch}, the \reduce Manual~\cite{manual} or the second of the
+\reduce interactive lessons~\cite{lessons}.  In the previous section we used a numeric
+example. In this and the next sections we deal with symbolic entities, the primary reason
+why \reduce is of interest. In \reduce, variables do not need to be declared. A variable
+can be used with or without assigning it a value. If no value has been assigned the
+variable is termed indeterminate and stands for itself. It can, for example, be an
+independent variable with respect to which an expression is differentiated. Variables with
+a value are known as bound. In the following \reduce statement {\it f} is bound
+and {\it x} and {\it y} are indeterminate:
+\begin{lstlisting}[frame=single]
+  f := (x + y)^2;  
+\end{lstlisting}
+First we start a new \reduce session and assign the bound variable  {\it f}:
+\begin{lstlisting}[language=R, frame=single, linerange={\\begin\{Sinput\}-\\end\{Sinput\},
+    \\begin\{Soutput\}-\\end\{Soutput\}}, includerangemarker=false ]
+\begin{Scode}
+  s2 <- redStart(echo=TRUE)
+  expoff <- redExec(s2, "off exp;")
+  f <- redExec(s2, "f := (x + y)^2;", drop.blank.lines=TRUE)[["out"]]
+  f
+\end{Scode}
+\end{lstlisting}
+We turned the EXP switch off to avoid expanding expressions for now. We have created a
+variable {\it f} in both the \reduce session and in R. We see that the resulting vector in
+R has two elements, even though {\it f} is a single entity. This is due to the fact that
+by default \reduce displays results in a way that is close to the normal maths
+display. This is controlled by the switch NAT (natural) which is on by default. We can see
+how it would appear in \reduce if we use {\it writeLines} to display the variable:
+\begin{lstlisting}[language=R, frame=single, linerange={\\begin\{Sinput\}-\\end\{Sinput\},
+        \\begin\{Soutput\}-\\end\{Soutput\} }, includerangemarker=false ]
+\begin{Scode}
+  writeLines(f)
+\end{Scode}
+\end{lstlisting}
+Alternatively We can also turn the switch NAT off to get
+
+\begin{lstlisting}[language=R, frame=single, linerange={\\begin\{Sinput\}-\\end\{Sinput\}
+        , \\begin\{Soutput\}-\\end\{Soutput\} }, includerangemarker=false  ]
+    %includerangemarker=false ]
+\begin{Scode}
+  redExec(s2, c("off nat;", "f ; on nat;"), drop.blank.lines=TRUE)[["out"]]
+\end{Scode}
+\end{lstlisting}
+Now the expression is written on a single line. For parsing results generated by redExec
+in R this is much more suitable than with NAT on. Specialized functions such as {\it
+  asltx} and {\it redSolve} handle this internally.
+
+We can now assign another bound variable, {\it h}, as a function of {\it f}:
+\begin{lstlisting}[language=R, frame=single, linerange={\\begin\{Sinput\}-\\end\{Sinput\},
+    \\begin\{Soutput\}-\\end\{Soutput\}}, includerangemarker=false ]
+\begin{Scode}
+writeLines(h <- redExec(s2, "h := f + 1/f;", drop.blank.lines=TRUE)[["out"]])
+\end{Scode}
+\end{lstlisting}
+
+Again we have chosen to use {\it writeLines} to display  {\it h}  as the default
+(and recommended) setting of the switch MCD (Making Common Denominators) is on and this
+displays the expression as a fraction, calculating a common denominator when rational
+functions are added as in this case. Since we turned EXP off, the expressions in
+parentheses are not expanded. If we turn off MCD we get a product with a negative exponent:
+\begin{lstlisting}[language=R, frame=single, linerange={\\begin\{Sinput\}-\\end\{Sinput\},
+    \\begin\{Soutput\}-\\end\{Soutput\}}, includerangemarker=false ]
+\begin{Scode}
+writeLines(redExec(s2, c("off mcd ;", "h;"),
+           drop.blank.lines=TRUE)[["out"]])
+\end{Scode}
+\end{lstlisting}
+If we now turn both EXP and MCD on we get:
+\begin{lstlisting}[language=R, frame=single, linerange={\\begin\{Sinput\}-\\end\{Sinput\},
+    \\begin\{Soutput\}-\\end\{Soutput\}}, includerangemarker=false ]
+\begin{Scode}
+writeLines(redExec(s2, c("on exp, mcd ;", "h;"),
+           drop.blank.lines=TRUE)[["out"]])
+\end{Scode}
+\end{lstlisting}
+where all sub expressions are expanded and common denominators are separated out.
+\begin{Scode}{echo=FALSE}
+  done <- redClose(s2, log="controlling-output.log")
+\end{Scode}
+
+
+%%
+%% Sourcing reduce files: IN
+%%
+\section{Sourcing \reduce files: IN}
+\label{sec:sourcing}
+The \reduce command  {\it IN} is the equivalent of the R {\it source} function. In
+contrast to the  R function, the \reduce command has only two modes of operation: whether
+the commands are echoed or not:
+\begin{lstlisting}[frame=single]
+  in "some.file.red" ;  %% commands from some.file.red are echoed
+  in "some.file.red" $  %% commands from some.file.red are not echoed
+\end{lstlisting}
+The IN statement suppresses the printing of statement numbers. This means that the
+{\it redExec} with the {\it split} option cannot distinguish commands from output. If we
+need to split we can use the {\it file:} syntax in the input vector:
+\begin{lstlisting}[frame=single]
+  commands <- c("q1:=(x+y);", "file:some.file.red", "q2:=q1^2")
+  redExec(s2, x=commands)
+\end{lstlisting}
+Using this approach redExec inserts the contents of {\it some.file.red} into the vector
+between the assignments of {\it q1} and {\it q2} before submitting to \reduce, effectively
+bypassing the use of the IN statement.
+
+%%
+%% redSolve
+%%
+\section{Solving a system of equations}
+\label{sec:solve}
+\begin{Scode}{label=solve.1, echo=FALSE}
+  s3 <- redStart()
+\end{Scode}
+The \reduce operator {\it solve}~\cite{solve} is a powerful tool for solving one or more
+simultaneous algebraic equations in one or more variables, both linear and
+non-linear. Equations may contain arbitrary constants. The operator takes two arguments: a
+list of the equations comprising the system and a list of the unknowns. The latter is
+optional unless the equations contain arbitrary constants, such as {\it c} in the following
+example. Here we first use {\it redExec} to call {\it solve}:
+%% NOTE: here using linerange to select only the commands. Could also use OFF OUTPUT;
+\begin{lstlisting}[language=R, frame=single, linerange={\\begin\{Sinput\}-\\end\{Sinput\}},
+      includerangemarker=false ]
+\begin{Scode}{label=solve.2, echo=TRUE}
+code <- c("eq1:= x + y + z ;",
+          "eq2:= x^2 + y^2 + z^2 -9 ;",
+          "eq3:= x^2 + c*y^2 - z^2 ;",
+          "on rounded ;") 
+          def.eqn <- redExec(s3, code) # to avoid printing the equations again
+          sol1 <- redExec(s3, "sol1:=solve({eq1, eq2, eq3}, {x, y, z});")[["out"]]
+\end{Scode}
+\end{lstlisting}
+which produces the following nested (\reduce) list. 
+\begin{framed}  %% to complete boxes which break across pages
+\begin{lstlisting}[linerange={\\begin\{Soutput\}-\\end\{Soutput\}},
+      includerangemarker=false ]
+  \begin{Scode}{label=solve.3, echo=FALSE}
+  writeLines(sol1)
+\end{Scode}
+\end{lstlisting}
+\end{framed}
+The top-level list has four elements, one for each solution, each of which is a list
+containing the values of the unknowns. Note that the arbitrary constant {\it c} is part of
+the first two solutions. Even turning NAT off, this can be very unwieldy so {\it redcas}
+provides the {\it redSolve} function which parses the output and returns an object of
+class {\it redcas.solve} containing both inputs and outputs:
+\begin{framed}
+\begin{Scode}{label=solve.4, echo=TRUE}
+soln <- redSolve(s3,
+                 eqns=c("x + y + z = 0", "x^2 + c*y^2 + z^2 = 9",
+                        "x^2 + y^2 - z^2 = 0"),
+                 unknowns=c("x", "y", "z"),
+                 switches <- "on rounded;")
+print(soln)
+\end{Scode}
+\end{framed}
+As can be seen, {\it redcas} provides a print method which attempts to display the
+solutions in as compact a manner as possible but will not always be as neat as in this
+example. The individual slots of the class can be accessed in the usual way using @. Note
+that the {\it solutions} slot is character since values may contain variable names which
+may or may not exist in the R session. Even if they do exist, using these values might not
+be what is intended. The object has another slot {\it rsolutions} which contains evaluated
+versions of the {\it solutions} slot, if these are numbers including complex, otherwise
+character. The print method does not display the {\it rsolutions} slot. In this particular
+case one could evaluate the results for a specific value of {\it c} as follows:
+\begin{framed}
+  \begin{Scode}{label=solve.5}
+    c <- 25
+    sol25 <- lapply(soln@solutions,
+                    function(x){unlist(lapply(x,
+                                function(y){eval(str2expression(y))}))})
+    print(sol25)
+  \end{Scode}
+\end{framed}
+
+Switches can have a significant effect on the result. As an example consider the following
+set of equations with the ROUNDED switch on and then off. For convenience, {\it redSolve}
+has a {\it switches} argument to allow turning switches on or off before calling {\it
+  solve}: 
+\begin{framed}
+  \begin{Scode}{label=solve.5, echo=TRUE}
+r.on <- redSolve(id=s3,
+                 eqns=c("x+y+z = 0", "x^2 + y^2 + z^2 = 9", "x^2 + y^2 = z"),
+                 unknowns=c("x", "y", "z"), switches="on rounded;"  )
+r.off <- redSolve(id=s3,
+                  eqns=c("x+y+z = 0", "x^2 + y^2 + z^2 = 9", "x^2 + y^2 = z"),
+                  unknowns=c("x", "y", "z"), switches="off rounded;"  )
+\end{Scode}
+\end{framed}
+With ROUNDED on, \reduce returns a set of solutions containing only real and complex
+constants (we have rounded to 6 digits to show the solutions as side-by-side columns):
+%% solve turns off print_precision, so to get the output as multiple columns in LaTeX we
+%% need to round
+\begin{framed}
+  \begin{Scode}{label=solve.5on, echo=FALSE}
+    for (i in 1:length(r.on@solutions)) {
+      for (j in 1:length(r.on@solutions[[i]])) {
+        x <- gsub("[ *]", "", r.on@solutions[[i]][j])
+        x <- as.character(round(eval(str2expression(x)),digits=5))
+        x <- gsub("([0-9])([+-])([0-9])", "\\1 \\2 \\3 ", x)
+        x <- gsub("^-", " - ", x)
+        #writeLines(sprintf("%s -> %s", r.on@solutions[[i]][j], x))
+        r.on@solutions[[i]][j] <- x
+      }
+    }
+    
+    print(r.on)
+  \end{Scode}
+\end{framed}
+and in this case the {\it rsolutions} slot contains complex or numeric types.  With
+ROUNDED off we get the same set of solutions but not simplified:
+\begin{framed}
+  \begin{Scode}{label=solve.5off, echo=FALSE}
+    print(r.off)
+  \end{Scode}
+\end{framed}
+\begin{Scode}{echo=FALSE}
+done <- redClose(s3, log="redSolve.log")
+\end{Scode}
+Although the expressions contain no variables, they do contain negative square roots which
+would produce NaNs if evaluated. In this case, the expressions may be evaluated by
+substituting {\texttt sqrt(-x)} with {\texttt complex(imaginary=sqrt(x))}. A future
+release of {\it redcas} may implement handling of such cases.
+  
+%%
+%% Producing \LaTeX{} output
+%%
+\section{Producing \LaTeX{} output}
+\label{sec:latex-output}
+The function {\it asltx} converts an array or expression previously defined in the \reduce
+session to \LaTeX using \reduce features. If provided with appropiate mappings it can
+translate object names or convert array arguments to indices and can enclose the result in
+a math environment specified by the user.
+
+As an example of an expression, consider the variable {\it h} which we used in
+section~\ref{sec:control-output}.
+\begin{framed}
+\begin{Scode}{eval=TRUE, echo=TRUE}
+  s4 <- redStart()
+  f <- redExec(s4, "f := (x + y)^2;", drop.blank.lines=TRUE)[["out"]]
+  h <- redExec(s4, "h := f + 1/f;", drop.blank.lines=TRUE)[["out"]]
+\end{Scode}
+\end{framed}
+First with MCD off:
+\begin{framed}
+\begin{Scode}{results=tex, echo=TRUE, eval=TRUE}
+dummy <- redExec(s4, "off mcd;")
+writeLines(asltx(s4, "h", mathenv="equation*")[["tex"]])
+\end{Scode}
+\end{framed}
+the function returns a list with the same three elements as {\it redExec} and a fourth,
+named ``tex'', containing the \LaTeX{} output .  Since we only need the \LaTeX{} output
+here we select the ``tex'' list element. We use {\it writeLines} to avoid printing the
+vector index numbers. With MCD on the same call returns:
+\newpage
+\begin{framed}
+\begin{Scode}{results=tex, echo=FALSE, eval=TRUE}
+dummy <- redExec(s4, "on mcd;")
+writeLines(asltx(s4, "h", mathenv="equation*")[["tex"]])
+\end{Scode}
+\end{framed}
+Note that {\it asltx} is currently not vectorized.
+
+{\it asltx} can also print arrays of any dimension. Unlike matrix printing in \reduce it
+does not attempt to display arrays of two dimensions as a matrix. Instead it prints each
+element of the array along with its indices. As an example, consider the tensor
+\begin{equation*}
+  g_{ij} =
+  \begin{bmatrix}
+    -\omega_1u^{-2} &   0      & 0                  & 0 \\
+    0      &  (ux)^2  & 0                  & 0 \\
+    0      &   0      & g_{1,1} * (sinx)^2  & 0 \\
+    0      &   0      & 0                  & \omega_2u^2
+  \end{bmatrix}
+\end{equation*}
+where $(t, x, y, z)$ is a coordinate system, u is an arbitrary constant and $\omega$ is a
+vector. In \reduce we define the tensor as follows:
+\begin{framed}
+  \begin{Scode}
+gm <- c("on nero; off exp;",
+        "operator omega;",
+        "array g(3,3) ;",
+        "g(0,0) := -omega(1)*u^(-2);",
+        "g(1,1) := (u*z)^2;",
+        "g(2,2) := g(1,1) * (sin(x))^2;",
+        "g(3,3) := omega(2)*u^2;")
+o4 <- redExec(s4, gm)$out
+  \end{Scode}
+\end{framed}
+where the tensor is represented by an array. Since we have a sparse tensor, we have turned on
+the NERO switch to suppress the zeroes. We now call  {\it asltx} to display $g$ as \LaTeX
+by using the {\it mode} argument:
+\begin{framed}
+  \begin{dgroup*}
+  \begin{Scode}{results=tex, echo=TRUE}
+writeLines(asltx(s4, "g", mathenv="dmath*", mode="fancy")[["tex"]])
+  \end{Scode}
+  \end{dgroup*}
+\end{framed}
+Here we see that \reduce variables with Greek letter names are automatically converted to
+the corresponding \LaTeX command.
+
+Finally, displaying the indices for a tensor using arguments is not the standard. We now
+show how to define a mapping of the arguments to raised or lowered indices. We construct a
+list\footnote{because it may also contain a map for changing variable names} containing a
+named vector called {\it index} with name being the identifier and the value a series of
+underscores and circumflexes to indicate lowered and raised indices, respectively. This
+list is passed as the {\it usermap} argument to {\it asltx}:
+\begin{framed}
+  \begin{dgroup*}
+  \begin{Scode}{results=tex, echo=TRUE}
+    writeLines(asltx(s4, "g", usermap=list(index=c(g="_^", "\\\\omega"="_")),
+                     mathenv="dmath*", mode="fancy")[["tex"]])
+  \end{Scode}
+  \end{dgroup*}
+\end{framed}
+We need to use four backslashes because the map is used as a regular expression which
+needs an escaped backslash and a further escaped backslash to get it into the string.
+
+Suppose we now want to change the name of $g$ to $\Gamma$: we add a named vector called {\it
+  ident} to the list with the old name as element name and new name as element value:
+\begin{framed}
+  \begin{dgroup*}
+    \begin{Scode}{results=tex, echo=TRUE}
+writeLines(asltx(s4, "g", mathenv="dmath*", usermap=list(ident=c(g="\\\\Gamma"),
+                          index=c("\\\\Gamma"="_^", "\\\\omega"="_")))[["tex"]])
+    \end{Scode}
+  \end{dgroup*}
+\end{framed}
+Note that the index element names must use the mapped identifier name.
+
+In our example, we have space for multi-column display, but {\it asltx} does only single
+column. We can do multi-column, for example, using the {\it align} environment, by calling
+{\it asltx} without a mathenv value and use R to format the output appropriately. We add
+alignment marks before the equals sign and add some space:
+\begin{framed}
+  \begin{Scode}{results=tex, echo=TRUE}
+otex <- asltx(s4, "g", 
+              usermap=list(ident=c(g="\\\\Gamma"),
+                           index=c("\\\\Gamma"="_^", "\\\\omega"="_")))[["tex"]]
+otex <- sub("=", "&=", otex)
+writeLines(c("\\begin{align}",
+             sprintf("%s      &%s\\\\", otex[1], otex[2]),
+             sprintf("%s      &%s",   otex[3], otex[4]),
+             "\\end{align}"))
+  \end{Scode}
+\end{framed}
+
+\begin{Scode}{echo=FALSE}
+done <- redClose(s4, log="redltx.log")
+\end{Scode}
+
+%%
+%% Bibliography
+%%
+\begin{thebibliography}{1}
+
+\bibitem{reduce2024}
+REDUCE Developers.
+\newblock {\href{http://www.reduce-algebra.com/obtaining.php}{\em How to Obtain and Run REDUCE} [Online; accessed 2024-08-18]}
+
+\bibitem{switch}
+  REDUCE Developers.
+  \newblock {\href{http://www.reduce-algebra.com/switches.php}{\em Switch Summary}
+    [Online; accessed 2024-08-29]}  
+  
+\bibitem{manual}
+  REDUCE Developers.
+  \newblock {\href{http://www.reduce-algebra.com/manual/manual.html}{\em \reduce Manual} [Online; accessed 2024-08-29]} 
+
+\bibitem{lessons}
+  David Stoutemyer, Arthur Norman, Francis Wright
+  \newblock {\href{http://www.reduce-algebra.com/tutorials.php}{\em Introductory tutorial}
+    [Online; accessed 2024-08-29]}  
+  
+\bibitem{solve}
+  REDUCE Developers.
+  \newblock
+      {\href{http://www.reduce-algebra.com/manual/manualse44.html#x56-1000007.17}{\em
+          The SOLVE Operator} [Online; accessed 2024-09-05]}  
+
+
+\end{thebibliography}
+
+\appendix
+%%
+%% Known issues
+%%
+\newpage
+\section{Known issues}
+\label{sec:known-issues}
+
+\subsection{redExec hangs}
+\label{sec:issue-redexec-hangs}
+
+\subsubsection{Operator prompt}
+\label{sec:issue-operator-prompt}
+Because \reduce is started via a pipe, the session is interactive so if you forget to
+declare an operator, \reduce prompts and waits for the user to respond. redExec traps
+this, terminates the \reduce session, informs of the problem and writes the complete
+\reduce transcript to the current working directory.
+
+\subsubsection{Missing statement terminators}
+\label{sec:issue-miss-stmt-term}
+If you forget to insert a statement terminator\footnote{semi-colon or dollar sign} on the
+last statement, the {\it redExec} function might\footnote{for example a LET statement
+without terminator hangs, but ON or OFF without terminator just generates an error
+message} not return. To avoid this situation, {\it redExec} checks whether the last
+non-blank, non-comment element of the input vector has a terminator. If not it stops with
+an appropriate message and returns FALSE.
+
+Forgetting a terminator on a statement other than the last will most likely cause an error
+rather than hanging, but hanging may still happen. You will know if the function will not
+return if it writes a message
+\begin{verbatim}
+  x seconds elapsed, reduce commands still executing.
+\end{verbatim}
+every 10 seconds (by default). In this case you must interrupt the function and call {\it
+  redClose}. Against this eventuality you can set the {\it timeout} argument
+to a value other than zero.
+
+\subsection{Parsing \reduce output}
+\label{sec:issue-parse-output}
+Splitting the \reduce transcript into commands and output is not trivial. Some issue are
+described in the following sections
+
+\subsubsection{Using the OUT statement}
+\label{sec:issue-using-out}
+The \reduce OUT statement redirects output to a named file. {\it redExec} does not
+currently check for this. If you use this option, none of the commands or output sent to
+the file will be returned. Furthermore, if you do not turn off the redirection in the same
+call to {\it redExec}, the end of submission marker\footnote{see
+appendix~\ref{sec:impl-details} for details} will not be seen and {\it redExec} with fail
+to return.
+
+\subsubsection{Using the OUTPUT switch}
+\label{sec:issue-using-output}
+If the \reduce OUTPUT switch is turned off, all output is suppressed. In order to prevent
+{\it redExec} hanging, be sure to turn it back on at the latest in the last statement in
+the call.
+
+\subsubsection{Using the IN statement}
+\label{sec:issue-using-in}
+The \reduce IN statement suppresses the printing of statement numbers. This means that the
+{\it redExec split} option will write both command and output to the {\it out} element of
+the returned list and only comments will be written to the {\it cmd} element. Using the
+{\it file:} syntax in the input vector instead of an IN statement avoids this problem. 
+
+\subsubsection{Commands with trailing comments}
+\label{sec:issue-cmd-trail-cmnt}
+If a command has a comment after the terminator and ECHO is on, \reduce prints it on a
+separate line. If the command produces output, the comment comes after the output, for
+example
+\begin{framed}
+  \begin{lstlisting}
+df(x^2, x) ; % a demonstrative comment
+  \end{lstlisting}
+\end{framed}
+produces
+\begin{framed}
+  \begin{lstlisting}
+2: df(x^2, x) ;
+2*x
+ % a demonstrative comment
+  \end{lstlisting}
+\end{framed}
+This is handled correctly by {\it redExec} but may be confusing when viewing the
+transcript.
+
+\subsection{asltx issues}
+{\it asltx} may cause \LaTeX{} compilation to fail with either of the following messages:
+\begin{verbatim}
+! Double subscript.
+! Double superscript.
+\end{verbatim}
+\LaTeX does not permit more than one subscript or superscript command on a single
+item. For example,
+\begin{verbatim}
+  \Gamma_{1}^{2}_{3}
+\end{verbatim}
+will fail. One situation where this could occur is when a variable with a raised index is
+also raised to a power, for example when the argument in {\texttt x(2)^3} is converted to
+a raised index. {\it asltx} handles this situation by converting to {\texttt
+  \{x\{^2\}\}^3}. There may be other situations which cause this error.
+
+%%
+%% The REDUCE transcript
+%%
+%\newpage
+\section{The \reduce transcript}
+\label{sec:reduce-transcript}
+In this section we describe the full \reduce transcript from
+section~\ref{sec:REDUCE-from-R}. 
+\lstset{numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=5pt}
+%% \lstinputlisting[language=red, frame=single, firstline=1, lastline=26,
+\lstinputlisting[frame=single, firstline=1, lastline=26,
+  title={Session start}]{controlling-reduce.clg}
+The first part of the transcript, up to the line containing {\it submit number 0 done} is
+generated by the call to {\it redStart} which calls {\it redExec} to define some \reduce
+functions required by the {\it redcas} package. Lines 5-21 contain the names of these
+procedures. For reasons related to the use of a pipe to control the \reduce session, all
+code submitted writes a marker line to the transcript to indicate the execution is
+complete. The marker command and output are lines 25 and 26, respectively and these are
+not returned by {\it redExec}.
+
+\lstinputlisting[frame=single, firstline=30, lastline=38, firstnumber=30,
+  title={First redExec call}]{controlling-reduce.clg}
+The results of the first (explicit) {\it redExec} call are shown in lines  30-38. {\it
+  redExec} splits these into commands and output by checking whether there is a command
+number or not. The marker command and output are not returned.
+
+\lstinputlisting[frame=single, firstline=42, lastline=52, firstnumber=42,
+  title={Second redExec call}]{controlling-reduce.clg}
+The results of the second {\it redExec} call are shown in lines  42-52.
+
+%% \begin{lstlisting}
+%%   \begin{Scode}{echo=FALSE,results=tex}
+%% ts <- readLines(transcript)
+%% writeLines(ts[ts!=""])
+%%   \end{Scode}
+%% \end{lstlisting}
+
+%%
+%% Testing
+%%
+%\newpage
+\section{Testing}
+\label{sec:testing}
+The package {\it redcas} comes with 328 tests grouped as shown in Table~\ref{tab:tests}. 
+\begin{table}[h]
+  \caption{Tests}
+  \label{tab:tests}
+  \begin{tabular}{|l|r|r|r|r|}
+    \hline
+    \begin{Scode}{echo=FALSE,results=tex}
+      test2tex(redcas.tests)
+    \end{Scode}
+    \hline
+  \end{tabular}
+\end{table}
+The 46 tests in the ``R'' column do not require a \reduce installation. Of the
+remaining 282 tests, 134 are executed for both CSL and PSL if they are both present while
+14 tests are executed for CSL only. If either or both CSL and PSL executables are absent,
+the relevant tests are skipped. In the directory where the tests are run, the file
+{\it 99-test-results.Rout} provides a summary of the results of these tests.
+
+This release has been tested with R 4.4.1 using \reduce releases 6860 and 6558 for both
+CSL and PSL on Linux, and 6558 and 6339 for CSL on MacOS.
+
+For 6339, 13 tests failed because of white space differences and, because the expression
+used is rational, differences in the number of dashes in the line separating numerator and
+denominator:
+\begin{verbatim}
+     6860 and 6558:             6339:
+                -1                          - 1 
+     g(0,0) := ----             g(0,0) := ------
+                 2                           2 
+                u                           u  
+\end{verbatim}
+While the testing program checks for white space only differences, the dashes are a
+problem. Possibly turning the MCD switch off might solve the issue.
+
+While {\it 99-test-results.Rout} shows the expected and actual values if the test fails,
+it is not very convenient for checking exactly how the two differ. For each set of tests
+there is an RData file containing two lists, expect and actual. To find this, open the
+Rout file for the failing category - the RData file name is in the statement which prints and
+saves the results, for example, in {\it 170-many-input.Rout} the line
+\begin{verbatim}
+  > print(save.results('redMany',expect,actual))
+\end{verbatim}
+indicates that {\it redMany.RData} contains the lists.
+%%
+%% Implementation details
+%%
+%\newpage
+%% \section{Some implementation details}
+%% \label{sec:impl-details}
+
+\end{document}
+

@@ -1,0 +1,4 @@
+reduce/dummy.red
+reduce/fancy-expect.red
+reduce/redcas-test.+$
+reduce/tm_array

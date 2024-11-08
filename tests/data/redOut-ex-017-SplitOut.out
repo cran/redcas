@@ -1,0 +1,52 @@
+Reduce (CSL, rev 6860), 11-Aug-2024 ...
+
+lisp_dialect
+
+swget
+
+swtoggle
+
+asltx
+
+exprltx
+
+itoa
+
+array2flatls
+
+arrayltx
+
+asltx_marker
+
+t
+
+
+ECHO is ON
+
+
+
+             4
+      (x + y)  + 1
+q := --------------
+               2
+        (x + y)
+
+
+           4
+ 2*((x + y)  - 1)
+------------------
+            3
+     (x + y)
+
+               4     2
+       ((x + y)  + 1)
+qq := -----------------
+                 4
+          (x + y)
+
+
+
+
+
+
+*** End-of-file read 

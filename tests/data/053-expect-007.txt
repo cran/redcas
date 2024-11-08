@@ -1,0 +1,3 @@
+error: last non-comment statement:
+       j3:=j2^2
+       has no terminator. Stopping.

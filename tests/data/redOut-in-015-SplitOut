@@ -1,0 +1,75 @@
+Reduce (CSL, rev 6860), 11-Aug-2024 ...
+
+1: 
+2: 
+lisp_dialect
+
+swget
+
+swtoggle
+
+asltx
+
+exprltx
+
+itoa
+
+array2flatls
+
+arrayltx
+
+asltx_marker
+
+3: 
+
+4: write "=====> submit number ", 0, " done <=====" ;
+=====> submit number 0 done <=====
+
+
+5: ;
+
+6: write "reading in-test.red";
+reading in-test.red
+
+
+7: %% $Id: redOut-in-015-SplitOut,v 1.1 2024/09/04 10:59:13 mg Exp $
+7: %% Purpose: reduce code ending with ;end; to be called by in-test.R
+7: %% $Log: redOut-in-015-SplitOut,v $
+7: %% Revision 1.1  2024/09/04 10:59:13  mg
+7: %% initial version
+7: %%
+7: off exp ;
+
+8: q := (x + y)^2 + 1/(x+y)^2 ;
+             4
+      (x + y)  + 1
+q := --------------
+               2
+        (x + y)
+
+
+9: df(q, x) ;
+           4
+ 2*((x + y)  - 1)
+------------------
+            3
+     (x + y)
+
+
+10: ;
+end;
+
+12: write "finished reading in-test.red";
+finished reading in-test.red
+
+
+13: write "=====> submit number ", 1, " done <=====" ;
+=====> submit number 1 done <=====
+
+
+14: 
+
+
+
+
+*** End-of-file read 

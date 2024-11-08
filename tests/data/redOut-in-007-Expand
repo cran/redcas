@@ -1,0 +1,10 @@
+operator a, b, c, d ;
+let c^2=a^2+b^2 ;
+let d=a*b/2 ;
+q1:=y^2 - x^3 + d^2*x ;
+solve(y^2=x^3 - d^2*x, {x,y}) ;
+file:data/redOut-in-007-Expand.red
+load_package rlfi ;
+on latex, lasimp;
+j:=sqrt(k^2 + l^2) ;
+off latex;

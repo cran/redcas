@@ -1,0 +1,39 @@
+Input file not found: redOut.fnf.not.there
+Could not insert its contents into the command vector.
+
+REDUCE session log:
+
+Reduce (Free PSL version, revision XXXX), build date dd-Mon-yyyy ...
+
+1: 
+2: 
+lisp_dialect
+*** Function `string!-to!-list' has been redefined
+*** Function `setpchar' has been redefined
+*** Function `yesp' has been redefined
+*** Function `compute!-prompt!-string' has been redefined
+
+swget
+
+swtoggle
+
+asltx
+
+exprltx
+
+itoa
+
+array2flatls
+
+arrayltx
+
+asltx_marker
+
+1: 
+=====> submit number 0 done <=====
+
+2: 
+
+
+The session will now be terminated.
+

@@ -1,0 +1,8 @@
+         2
+ye := -------
+       a + b
+latex:\black$\displaystyle \begin{equation}$
+latex:\black$\displaystyle  \mathrm{ye~:=~}\frac{2}{a+b}$
+latex:\black$\displaystyle \end{equation}$
+latex:\black$\displaystyle  \mathrm{ye~:=~}\frac{2}{a+b}$
+latex:\black$\displaystyle  \mathrm{\$ye~:=~}\frac{2}{a+b}\mathrm{\$}$

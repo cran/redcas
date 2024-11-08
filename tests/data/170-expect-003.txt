@@ -1,0 +1,52 @@
+lisp_dialect
+
+swget
+
+swtoggle
+
+asltx
+
+exprltx
+
+itoa
+
+array2flatls
+
+arrayltx
+
+asltx_marker
+
+
+
+
+
+           -1
+g(0,0) := ----
+            2
+           u
+
+
+              2  2
+g(1,1) := x(3) *u
+
+
+                   2     2  2
+g(2,2) := sin(x(1)) *x(3) *u
+
+
+           2
+g(3,3) := u
+
+
+
+
+
+n(3) := u
+
+
+
+
+end;
+
+
+

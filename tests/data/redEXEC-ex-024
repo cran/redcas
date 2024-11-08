@@ -1,0 +1,24 @@
+3: 
+
+4: off exp;
+
+5: 
+5: % a programme to calculate the surface energy tensor or the Curzon field in
+5: % quasi-cylindrical coords. The surface is a cylinder x(0)=time, x(1)=azimuthal angle,
+5: % x(2)=radial, x(3)=axial.
+5: 
+5: operator q, x, y, z;
+
+6: for all i,j such that i neq j
+6:    let {df (x (i), x(j)) => 0,
+6:       df (y(i), y(j)) => 0,
+6:       df (q(i), q(j)) => 0};
+
+7: 
+7: array g(3,3), gp(3,3), h(3,3), cs1(3,3,3), cs2(3,3,3),
+7:    n(3), twop(2,2), two(2,2) ;
+
+8: 
+
+
+9: 

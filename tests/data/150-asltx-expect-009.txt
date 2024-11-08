@@ -1,0 +1,3 @@
+latex:\black$\displaystyle \begin{dmath}$
+latex:\black$\displaystyle  \mathrm{ye~:=~}\frac{2}{a+b}$
+latex:\black$\displaystyle \end{dmath}$

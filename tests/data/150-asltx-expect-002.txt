@@ -1,0 +1,3 @@
+latex:\black$\displaystyle \begin{dmath}$
+latex:\black$\displaystyle  \mathrm{xe~:=~}a^2+2\*a\*b+b^2$
+latex:\black$\displaystyle \end{dmath}$

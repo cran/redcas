@@ -1,0 +1,22 @@
+
+14: c:=(u+v)^4 ;
+      4      3        2  2        3    4
+c := u  + 4*u *v + 6*u *v  + 4*u*v  + v
+
+
+15: cu:=df(c,u) ;
+          3      2          2    3
+cu := 4*(u  + 3*u *v + 3*u*v  + v )
+
+
+16: cv:=df(c,v) ;
+          3      2          2    3
+cv := 4*(u  + 3*u *v + 3*u*v  + v )
+
+
+17: write "=====> submit number ", 3, " done <=====" ;
+=====> submit number 3 done <=====
+
+
+18: 
+

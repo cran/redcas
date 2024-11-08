@@ -1,0 +1,12 @@
+\begin{dmath}
+g_{00}=\frac{-1}{u^2}
+\end{dmath}
+\begin{dmath}
+g_{11}=a^2\*u^2
+\end{dmath}
+\begin{dmath}
+g_{22}=\sin\left(x^{1}\right)^2\*a^2\*u^2
+\end{dmath}
+\begin{dmath}
+g_{33}=u^2
+\end{dmath}
